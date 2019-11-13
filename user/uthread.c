@@ -11,28 +11,12 @@
 #define MAX_THREAD  4
 
 struct thread {
-	// from kernel/proc.h
-	void *ra;
-	char   stack[STACK_SIZE]; /* the thread's stack */
-	// callee-saved
-	uint64 s0;
-	uint64 s1;
-	uint64 s2;
-	uint64 s3;
-	uint64 s4;
-	uint64 s5;
-	uint64 s6;
-	uint64 s7;
-	uint64 s8;
-	uint64 s9;
-	uint64 s10;
-	uint64 s11;
-
-	int        state;             /* FREE, RUNNING, RUNNABLE */
+	uint64	stack[STACK_SIZE/8];	/* the thread's stack */
+	int	state;			/* FREE, RUNNING, RUNNABLE */
 };
 struct thread all_thread[MAX_THREAD];
 struct thread *current_thread;
-extern void thread_switch(void*, void*);
+extern void thread_switch(uint64, uint64);
               
 void 
 thread_init(void)
@@ -77,7 +61,7 @@ thread_schedule(void)
      * Invoke thread_switch to switch from t to next_thread:
      * thread_switch(??, ??);
      */
-    thread_switch(t, next_thread);
+    thread_switch((uint64) t, (uint64) next_thread);
   } else
     next_thread = 0;
   // should it say "current_thread->state = runnable" ???
@@ -93,19 +77,10 @@ thread_create(void (*func)())
   }
   t->state = RUNNABLE;
   // YOUR CODE HERE
-  t->s0 = 0;
-  t->s1 = 0;
-  t->s2 = 0;
-  t->s3 = 0;
-  t->s4 = 0;
-  t->s5 = 0;
-  t->s6 = 0;
-  t->s7 = 0;
-  t->s8 = 0;
-  t->s9 = 0;
-  t->s10 = 0;
-  t->s11 = 0;
-  t->ra = func;
+  t->stack[0] = (uint64) func;
+  for (int i = 1; i<13; i++){
+	  t->stack[i] = 0; // initialize values
+  }
 }
 
 void 
