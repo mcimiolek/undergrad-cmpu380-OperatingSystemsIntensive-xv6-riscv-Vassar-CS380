@@ -78,7 +78,8 @@ thread_create(void (*func)())
   t->state = RUNNABLE;
   // YOUR CODE HERE
   t->stack[0] = (uint64) func;
-  for (int i = 1; i<13; i++){
+  t->stack[1] = (uint64) &t->stack[(STACK_SIZE/8)-1]; // top of stack
+  for (int i = 2; i<14; i++) {
 	  t->stack[i] = 0; // initialize values
   }
 }
