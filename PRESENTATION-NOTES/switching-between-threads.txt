@@ -1,0 +1,26 @@
+Important things that we did-
+- Based our assembly off of kernel/swtch.S, which we noticed was doing what
+    we wanted to already
+- Primarily ended up working with the stack, which is in the form of an array
+    of uint64s to represent the callee registers along with whatever else
+    will be on the stack
+    - originally in the for of an array of char, but we realized it would be
+        more efficient as an array of uint64's since that's what we were
+        actually using (could divide size by 8)
+    - forgot that the stack grows down, we were originally setting all of our
+        values from the first element of the array, which caused us to be
+        overiding other data instead of actually setting the elements as
+        expected (I.E. we were setting the states of threads to 0 or free)
+    - set the initial value of the first element to the value of func (which 
+        represents ...) as the first element is the register holding the
+        return adress (ra or x1) and this is where we want to return
+        - this is also the only caller register we work with
+    - set the initial value of the second element to the value of the last
+        element of the array as this is where we want the stack to start, and
+        the second element is the stack pointer register (rp or x2)
+    - the rest of the registers we set are (x8, x9, and x18-27) which are all
+        function argument registers
+        - originally manually set all of these to 0, but then realized this
+            was the default and that we didn't need to do that
+    - everything else on the stack is also a default of 0
+- only other thing we did was add a thread_switch function call

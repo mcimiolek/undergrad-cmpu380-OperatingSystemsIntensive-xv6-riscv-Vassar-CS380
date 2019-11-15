@@ -1,0 +1,6 @@
+Which registers contain arguments to functions? a0-a7 can hold function arguments (x10-x17)
+For example, which register holds 13 in main's call to printf? a2
+Where is the function call to f from main? 26 (optimized away and inlined)
+Where is the call to g? 14 (inlined in)
+At what address is the function printf located? 66a
+What value is in the register ra just after jalr to printf in main? should be 38, seems to be 30
