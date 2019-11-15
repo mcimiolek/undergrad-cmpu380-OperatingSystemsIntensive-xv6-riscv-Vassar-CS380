@@ -12,7 +12,7 @@
 
 struct thread {
 	uint64	stack[STACK_SIZE/8];	/* the thread's stack */
-	int	state;			/* FREE, RUNNING, RUNNABLE */
+	int	state;				/* FREE, RUNNING, RUNNABLE */
 };
 struct thread all_thread[MAX_THREAD];
 struct thread *current_thread;
@@ -78,10 +78,8 @@ thread_create(void (*func)())
   t->state = RUNNABLE;
   // YOUR CODE HERE
   t->stack[0] = (uint64) func;
-  t->stack[1] = (uint64) &t->stack[(STACK_SIZE/8)-1]; // top of stack
-  for (int i = 2; i<14; i++) {
-	  t->stack[i] = 0; // initialize values
-  }
+  // set *sp* to the top of stack
+  t->stack[1] = (uint64) &t->stack[(STACK_SIZE/8)-1];
 }
 
 void 
