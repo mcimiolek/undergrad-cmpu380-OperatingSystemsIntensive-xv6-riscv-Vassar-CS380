@@ -123,6 +123,9 @@ found:
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
 
+  p->tick_interval = -1;
+  p->ticks_left = 1;
+
   return p;
 }
 

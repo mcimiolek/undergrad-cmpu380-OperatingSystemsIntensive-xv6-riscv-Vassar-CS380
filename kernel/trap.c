@@ -46,7 +46,7 @@ usertrap(void)
   w_stvec((uint64)kernelvec);
 
   struct proc *p = myproc();
-  
+
   // save user program counter.
   p->tf->epc = r_sepc();
   
@@ -77,8 +77,35 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2)
-    yield();
+  if(which_dev == 2) {
+	  if(p->tick_interval > -1) {
+
+		  p->ticks_left--;
+
+		  if(p->ticks_left < 1) {
+			  // given pagetable and virtual address of handler,
+			  // get the physical address of handler.
+			  uint64 fn = walkaddr(p->pagetable,
+					  (uint64) p->handler);
+			  int verbose = 1;
+			  if (verbose) {
+				  printf("\n");
+				  printf("trap.c: p->pagetable: %p\n",
+						  p->pagetable);
+				  printf("trap.c:   p->handler: %p\n",
+						  p->handler);
+				  printf("trap.c:           fn: %p\n"
+						  , fn);
+				  for (int k = 0; k < 7; k++) {
+					  printf("trap.c:        fn[%d]: %p\n",
+							  k, ((uint64 *)fn)[k]);
+				  }
+			  }
+			  ((void (*)())fn)();
+		  }
+	  }
+	  yield();
+  }
 
   usertrapret();
 }

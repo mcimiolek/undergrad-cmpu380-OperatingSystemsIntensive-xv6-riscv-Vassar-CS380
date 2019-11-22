@@ -95,3 +95,34 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// our syscalls! sigalarm and sigreturn
+
+uint64
+sys_sigalarm(void)
+{
+	int ticks;
+	void (*handler)();
+
+	if(argint(0, &ticks) < 0) // argint gets int argument
+		return -1;
+	if(argaddr(1, (uint64 *) &handler) < 0) // argaddr gets ptr argument
+		return -1;
+	printf("sysproc:     handler: %p\n", handler);
+
+	struct proc *p = myproc();
+	
+	p->tick_interval = ticks;
+	p->handler = handler;
+	p->ticks_left = ticks;
+
+	printf("sysproc:  p->handler: %p\n", p->handler);
+
+	return 0;
+}
+
+uint64
+sys_sigreturn(void)
+{
+	return 0;
+}
