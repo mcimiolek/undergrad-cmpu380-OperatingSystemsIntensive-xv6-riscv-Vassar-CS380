@@ -78,33 +78,20 @@ usertrap(void)
 
   // give up the CPU if this is a timer interrupt.
   if(which_dev == 2) {
-	  if(p->tick_interval > -1) {
-
-		  p->ticks_left--;
-
-		  if(p->ticks_left < 1) {
-			  // given pagetable and virtual address of handler,
-			  // get the physical address of handler.
-			  uint64 fn = walkaddr(p->pagetable,
-					  (uint64) p->handler);
-			  int verbose = 1;
-			  if (verbose) {
-				  printf("\n");
-				  printf("trap.c: p->pagetable: %p\n",
-						  p->pagetable);
-				  printf("trap.c:   p->handler: %p\n",
-						  p->handler);
-				  printf("trap.c:           fn: %p\n"
-						  , fn);
-				  for (int k = 0; k < 7; k++) {
-					  printf("trap.c:        fn[%d]: %p\n",
-							  k, ((uint64 *)fn)[k]);
-				  }
-			  }
-			  ((void (*)())fn)();
+	  if(p->tick_interval > -1 && p->ticks_left == 0 && p->h_free) {
+		  char *tf, *btf;
+		  tf = (char *) p->tf;
+		  btf = (char *) p->backup_tf;
+		  for(int i = 0; i < sizeof(struct trapframe); i++) {
+			  btf[i] = tf[i];
 		  }
+		  p->tf->epc = (uint64) p->handler;
+		  p->h_free = 0;
+	  } else {
+		  if(p->tick_interval > -1 && p->ticks_left > 0)
+			  p->ticks_left--;
+		  yield();
 	  }
-	  yield();
   }
 
   usertrapret();

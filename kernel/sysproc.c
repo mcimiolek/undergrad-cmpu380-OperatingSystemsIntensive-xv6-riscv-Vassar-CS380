@@ -108,7 +108,7 @@ sys_sigalarm(void)
 		return -1;
 	if(argaddr(1, (uint64 *) &handler) < 0) // argaddr gets ptr argument
 		return -1;
-	printf("sysproc:     handler: %p\n", handler);
+	//printf("sysproc:     handler: %p\n", handler);
 
 	struct proc *p = myproc();
 	
@@ -116,7 +116,7 @@ sys_sigalarm(void)
 	p->handler = handler;
 	p->ticks_left = ticks;
 
-	printf("sysproc:  p->handler: %p\n", p->handler);
+	//printf("sysproc:  p->handler: %p\n", p->handler);
 
 	return 0;
 }
@@ -124,5 +124,16 @@ sys_sigalarm(void)
 uint64
 sys_sigreturn(void)
 {
+	
+	struct proc *p = myproc();
+	char *tf, *btf;
+	tf = (char *) p->tf;
+	btf = (char *) p->backup_tf;
+	for(int i = 0; i < sizeof(struct trapframe); i++) {
+		tf[i] = btf[i];
+	}
+	p->ticks_left = p->tick_interval;
+	p->h_free = 1;
+	usertrapret();
 	return 0;
 }

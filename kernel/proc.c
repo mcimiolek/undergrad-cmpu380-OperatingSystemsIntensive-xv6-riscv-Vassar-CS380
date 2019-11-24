@@ -113,6 +113,11 @@ found:
     release(&p->lock);
     return 0;
   }
+  // Allocate a trapframe page.
+  if((p->backup_tf = (struct trapframe *)kalloc()) == 0){
+    release(&p->lock);
+    return 0;
+  }
 
   // An empty user page table.
   p->pagetable = proc_pagetable(p);
@@ -124,7 +129,8 @@ found:
   p->context.sp = p->kstack + PGSIZE;
 
   p->tick_interval = -1;
-  p->ticks_left = 1;
+  p->ticks_left = -1;
+  p->h_free = 1;
 
   return p;
 }

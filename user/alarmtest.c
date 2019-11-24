@@ -41,17 +41,6 @@ test0()
 {
   int i;
   printf("test0 start\n");
-  
-  printf("alarmtest:  periodic: %p\n", periodic);
-  /*
-  uint64 *ptr = (uint64 *) periodic;
-  for (int k = 0; k < 6; k++) {
-	  printf("periodic[%d]: %p\n", k, *ptr);
-	  ptr++;
-  }
-  printf("\n");
-  */
-  
   count = 0;
   sigalarm(2, periodic);
   for(i = 0; i < 1000*500000; i++){
