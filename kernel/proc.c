@@ -113,11 +113,8 @@ found:
     release(&p->lock);
     return 0;
   }
-  // Allocate a trapframe page.
-  if((p->backup_tf = (struct trapframe *)kalloc()) == 0){
-    release(&p->lock);
-    return 0;
-  }
+
+  // backup trapframe is allocatted in sysproc.c
 
   // An empty user page table.
   p->pagetable = proc_pagetable(p);
@@ -130,7 +127,6 @@ found:
 
   p->tick_interval = -1;
   p->ticks_left = -1;
-  p->h_free = 1;
 
   return p;
 }
@@ -144,6 +140,9 @@ freeproc(struct proc *p)
   if(p->tf)
     kfree((void*)p->tf);
   p->tf = 0;
+  if(p->backup_tf)
+    kfree((void*)p->backup_tf);
+  p->backup_tf = 0;
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
   p->pagetable = 0;

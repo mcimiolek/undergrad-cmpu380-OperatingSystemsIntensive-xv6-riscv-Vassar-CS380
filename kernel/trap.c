@@ -78,17 +78,15 @@ usertrap(void)
 
   // give up the CPU if this is a timer interrupt.
   if(which_dev == 2) {
-	  if(p->tick_interval > -1 && p->ticks_left == 0 && p->h_free) {
-		  char *tf, *btf;
-		  tf = (char *) p->tf;
-		  btf = (char *) p->backup_tf;
-		  for(int i = 0; i < sizeof(struct trapframe); i++) {
-			  btf[i] = tf[i];
-		  }
+	  // if p->ticks_left > 0, the alarm hasn't timed out yet
+	  // if p->ticks_left < 0, the handler has already been called,
+	  //                       or there is no alarm.
+	  if(p->ticks_left == 0) {
+		  p->ticks_left = -1; // prevent more calls to handler
+		  *(p->backup_tf) = *(p->tf); // back up the current trapframe
 		  p->tf->epc = (uint64) p->handler;
-		  p->h_free = 0;
 	  } else {
-		  if(p->tick_interval > -1 && p->ticks_left > 0)
+		  if(p->ticks_left > 0)
 			  p->ticks_left--;
 		  yield();
 	  }

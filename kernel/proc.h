@@ -108,6 +108,5 @@ struct proc {
   int tick_interval;
   void (*handler)();
   int ticks_left;
-  int h_free;
   struct trapframe *backup_tf;
 };

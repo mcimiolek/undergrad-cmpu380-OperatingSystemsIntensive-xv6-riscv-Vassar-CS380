@@ -101,6 +101,17 @@ sys_uptime(void)
 uint64
 sys_sigalarm(void)
 {
+	struct proc *p = myproc();
+
+	// if a backup trapframe hasn't already been allocated
+	if(!p->backup_tf) {
+		// allocate a backup trapframe page.
+		if((p->backup_tf = (struct trapframe *)kalloc()) == 0){
+			printf("sys_sigalarm(): kalloc-ing backup_tf failed\n");
+			return -1; // dont set alarm, return error status
+		}
+	}
+
 	int ticks;
 	void (*handler)();
 
@@ -108,15 +119,10 @@ sys_sigalarm(void)
 		return -1;
 	if(argaddr(1, (uint64 *) &handler) < 0) // argaddr gets ptr argument
 		return -1;
-	//printf("sysproc:     handler: %p\n", handler);
 
-	struct proc *p = myproc();
-	
 	p->tick_interval = ticks;
 	p->handler = handler;
-	p->ticks_left = ticks;
-
-	//printf("sysproc:  p->handler: %p\n", p->handler);
+	p->ticks_left = ticks; // set the alarm
 
 	return 0;
 }
@@ -124,16 +130,9 @@ sys_sigalarm(void)
 uint64
 sys_sigreturn(void)
 {
-	
 	struct proc *p = myproc();
-	char *tf, *btf;
-	tf = (char *) p->tf;
-	btf = (char *) p->backup_tf;
-	for(int i = 0; i < sizeof(struct trapframe); i++) {
-		tf[i] = btf[i];
-	}
-	p->ticks_left = p->tick_interval;
-	p->h_free = 1;
+	*(p->tf) = *(p->backup_tf); // restore the backed up trapframe
+	p->ticks_left = p->tick_interval; // reset the alarm
 	usertrapret();
 	return 0;
 }
