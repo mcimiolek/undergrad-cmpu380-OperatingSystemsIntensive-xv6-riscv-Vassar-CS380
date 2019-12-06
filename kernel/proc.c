@@ -275,6 +275,9 @@ fork(void)
 
   // copy saved user registers.
   *(np->tf) = *(p->tf);
+  if(np->backup_tf) {
+	  *(np->backup_tf) = *(p->backup_tf);
+  }
 
   // Cause fork to return 0 in the child.
   np->tf->a0 = 0;
