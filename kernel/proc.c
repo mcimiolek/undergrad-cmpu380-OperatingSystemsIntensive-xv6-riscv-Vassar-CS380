@@ -275,7 +275,16 @@ fork(void)
 
   // copy saved user registers.
   *(np->tf) = *(p->tf);
-  if(np->backup_tf) {
+
+  if(p->backup_tf) {
+	  // allocate a backup trapframe page.
+	  if((np->backup_tf = (struct trapframe *)kalloc()) == 0){
+		  printf("proc.c: fork(): kalloc-ing backup_tf failed\n");
+		  freeproc(np);
+		  release(&np->lock);
+		  return -1;
+	  }
+	  // copy saved backup trapframe
 	  *(np->backup_tf) = *(p->backup_tf);
   }
 
