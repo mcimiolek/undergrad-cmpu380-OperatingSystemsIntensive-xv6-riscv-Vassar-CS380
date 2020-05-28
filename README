@@ -1,4 +1,7 @@
-HELLO - Made a change to test fork
+Forked copy of xv6 used to for some of the labs available for the MIT
+course. The work done was for the Vassar College operating systems
+intensive. Not all of the work done in that class was done in this repo,
+and some was undone before being pushed to github.
 
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
